@@ -1,0 +1,4 @@
+#!/bin/bash
+THIS_DIR="$(dirname "$BASH_SOURCE")"
+GEN_CSV_SCRIPT="$THIS_DIR/../bin/gen_test_csv.py"
+python3 "$GEN_CSV_SCRIPT" $@

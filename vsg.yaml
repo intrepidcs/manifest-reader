@@ -1,0 +1,339 @@
+exclude:
+  - text_util.vhd
+  - ics_vunit/**/*.vhd
+
+rule:
+  # Checks for paren's around if condition.  Not needed looks clunky IMO.  Don't enforce either way
+  if_002:
+    disable: true  
+  # Checks for default assignments.  We use these *everywhere*
+  signal_007:
+    disable: true
+  # Checks for `x <= y when a else z` putting z on a different line.  Not always necessary don't enforce either way
+  concurrent_007:
+    allow_single_line: true
+    disable: true
+  # Default prefers clk'event.  Prefer rising_edge(clk) instead
+  process_029:
+    clock: edge
+  # Checks for labels on end generate ie `end generate gen_statement`.  Not necessary more code in the way
+  generate_011:
+    disable: true
+  # Increase max line length to 140
+  length_001:
+    length: 140
+  # Require all generics to be upper case
+  generic_007:
+    case: upper
+  # Checks case on ports.  Maybe we'll decide one way or another on this later for now let everyone have their own convention
+  port_010:
+    disable: true
+  generic_map_002:
+    case: upper
+  # Don't care what case the name of a process is
+  process_017:
+    disable: true
+  # Don't care what case the label for a generate statement is
+  generate_005:
+    disable: true
+  # Don't care what case the end process label is
+  process_019:
+    disable: true
+  # Variable can be initialized
+  variable_007:
+    disable: true
+  # Allow initialized ports
+  port_012:
+    disable: true
+  constant_007:
+    disable: true
+  # Not all processes need labels
+  process_016:
+    disable: true
+  # Don't care if end process has a label
+  process_018:
+    disable: true
+  # First paren of a constant declaration like constant x : y := (a b) not on new line
+  constant_016:
+    first_paren_new_line: no
+  # Prefer entity instantiation
+  instantiation_034:
+     method: 'entity'
+  # Align constant declaration left on multiline
+  constant_012: 
+    disable: true
+  # Definitely don't align compactly, keep everything lined up
+  entity_017:
+    compact_alignment : false
+    blank_line_ends_group : false
+    comment_line_ends_group : false
+  # Don't care what case the entity is
+  entity_008:
+    disable: true
+  # Don't care what case the instantiation is
+  instantiation_008:
+    disable: true
+  # Don't care what case the entity name is for the architecture
+  architecture_014:
+    disable: true
+  # Don't care what case the entity name is 
+  entity_012:
+    disable: true
+  # Don't care what case the instantiation is
+  instantiation_028:
+    disable: true
+  # All constants should be upper case
+  constant_004:
+    case: upper
+  # Don't care about case for port mapping
+  port_map_002:
+    disable: true
+  # There's a missing return statement here that breaks stuff in 3.0, disable for now
+  variable_assignment_004: 
+    disable: true
+  instantiation_010:
+    compact_alignment: false
+    blank_line_ends_group : true
+    comment_line_ends_group : false
+  # Don't care about case of package
+  package_010:
+    disable: true
+  # Don't care about case of package
+  package_008:
+    disable: true
+  # Don't care about inline comments
+  package_401:
+    disable: true
+  # Don't care about case of package
+  package_body_502:
+    disable: true
+  # Don't care about case of package
+  package_body_507:
+    disable: true
+  # Don't care about second entity keyword
+  entity_015:
+    disable: true
+  # Don't care about "is" in process statement
+  process_012:
+    disable: true
+  # Don't care about architecture keyword
+  architecture_010:
+    disable: true
+  # Don't care about optional "is" in component
+  component_021:
+    disable: true
+  # Don't care about optional component keyword
+  instantiation_033:
+    disable: true
+  # Don't care about number of spaces after port type
+  port_007:
+    disable: true
+  port_008:
+    disable: true
+  # Disable warnings on component instantiation
+  instantiation_034:
+    disable: true
+  # Dont care about port map comments
+  instantiation_023:
+    disable: true
+  # Dont care about simple end architecture name
+  architecture_024:
+    disable: true
+  # Dont care about space after function
+  function_100:
+    disable: true
+  # Dont care about space after procedure
+  procedure_100:
+    disable: true
+  # Dont care about space after process
+  process_002:
+    disable: true
+  # Dont care about space after generic
+  generic_003:
+    disable: true
+  # Dont care about space after map
+  generic_map_006:
+    disable: true
+  # Dont care about simple end entity name
+  entity_019:
+    disable: true
+  # Dont care about blank line before libary use
+  library_007:
+    disable: true
+  # Dont care about indent on library
+  context_ref_001:
+    disable: true
+  # Dont care about indent on library
+  library_008:
+    disable: true
+  # Dont care about blank line on library
+  library_003:
+    disable: true
+  # Dont care about spacing on operators +,-,*,/
+  whitespace_011:
+    disable: true
+  # Dont care about blank line before functions
+  function_006:
+    disable: true
+  # Dont care about blank line before if
+  if_031:
+    disable: true
+  # Dont care about blank line after if
+  if_030:
+    disable: true
+  # Dont care about blank line after generate
+  generate_003:
+    disable: true
+  # Dont care about blank line before generate
+  generate_004:
+    disable: true
+  # Dont care about blank line before port map
+  instantiation_004:
+    disable: true
+  # Dont care about blank line after port map
+  instantiation_019:
+    disable: true
+  # Dont care about blank line between process and variable decs
+  process_026:
+    disable: true
+  # Dont care about blank line between variable decs and begin
+  process_027:
+    disable: true
+  # Dont care about blank line before process
+  process_015:
+    disable: true
+  # Dont care about blank line after process begin
+  process_022:
+    disable: true
+  # Dont care about blank line before process end
+  process_023:
+    disable: true
+  # Dont care about blank line after process end
+  process_011:
+    disable: true
+  # Dont care about blank line after if
+  if_006:
+    disable: true
+  # Dont care about blank line before elsif
+  if_007:
+    disable: true
+  # Dont care about blank line before end if
+  if_008:
+    disable: true
+  # Dont care about blank line before else
+  if_010:
+    disable: true
+  # Dont care about blank line after else
+  if_011:
+    disable: true
+  # Dont care about blank line before type
+  type_010:
+    disable: true
+  # Dont care about blank line after type
+  type_011:
+    disable: true
+  # Dont care about end generic indent
+  generic_008:
+    disable: true
+  # Dont care about end port indent
+  port_015:
+    disable: true
+  # Dont care about blank lines on case
+  case_007:
+    disable: true
+  case_008:
+    disable: true
+  case_009:
+    disable: true
+  case_010:
+    disable: true
+  # Dont care about indentation on end parenthesis of port map
+  # TODO find a way to not ignore indentation for the whole portmap
+  instantiation_001:
+    disable: true
+  # Dont care about alignment of comments
+  instantiation_029:
+    disable: true
+  # TODO find a way to enable this
+  architecture_026:
+    disable: true
+  architecture_027:
+    disable: true
+  architecture_029:
+    disable: true
+  constant_014:
+   disable: true
+  entity_017:
+   disable: true
+  entity_020:
+   disable: true
+  process_034:
+   disable: true
+  process_035:
+   disable: true
+  entity_018:
+   disable: true
+  if_009:
+   disable: true
+  concurrent_003:
+   disable: true
+  concurrent_006:
+   disable: true
+  concurrent_008:
+   disable: true
+  concurrent_011:
+   disable: true
+  process_031:
+   disable: true
+  type_400:
+   disable: true
+  # TODO find a way to enable this
+  length_003:
+   disable: true
+  # Dont care about indentation on end parenthesis of procedure
+  procedure_006:
+    disable: true
+  # Allow asserts to be one-liners when appropriate
+  assert_002:
+    disable: true
+  assert_003:
+    disable: true
+  assert_004:
+    disable: true
+  assert_005:
+    disable: true
+  assert_400:
+    disable: true
+  # Blank line before/after
+  procedure_200:
+    disable: true
+  subprogram_body_201:
+    disable: true
+  subprogram_body_202:
+    disable: true
+  subprogram_body_203:
+    disable: true
+  subprogram_body_204:
+    disable: true
+  procedure_410:
+    comment_line_ends_group: false
+  procedure_401:
+    blank_line_ends_group : true
+    comment_line_ends_group: true
+    compact_alignment: false
+  procedure_411:
+    comment_line_ends_group: true
+    compact_alignment: false
+  when_001:
+    disable: true
+  concurrent_009:
+    disable: true
+  function_012:
+    comment_line_ends_group : true
+  case_200:
+    disable: true
+  process_400:
+    comment_line_ends_group: true
+    blank_line_ends_group: true
+  procedure_412:
+    compact_alignment : false
