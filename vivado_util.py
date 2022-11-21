@@ -14,8 +14,8 @@ from vunit.vivado import (
 )
 import shutil
 
-import blocks_reader
-import manifest_reader
+from . import blocks_reader
+from . import manifest_reader
 
 from os import environ
 
