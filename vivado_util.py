@@ -14,8 +14,8 @@ from vunit.vivado import (
 )
 import shutil
 
-import blocks_reader
-import manifest_reader
+from . import blocks_reader
+from . import manifest_reader
 
 from os import environ
 
@@ -312,7 +312,10 @@ def generate_filelist(
                          }
                      } where standard is [VHDL, VHDL 2008]
     """
-    blk_dirs = blocks_reader.read_blocks(environ.get("BASE_DIR"))
+    try:
+        blk_dirs = blocks_reader.read_blocks(root_dir)
+    except TypeError:
+        blk_dirs = [root_dir]
     files = []
     for blk_dir in blk_dirs:
         manifest = manifest_reader.read_manifest(blk_dir)
