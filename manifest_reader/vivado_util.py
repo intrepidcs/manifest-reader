@@ -14,10 +14,10 @@ from vunit.vivado import (
 )
 import shutil
 
-from . import blocks_reader
-from . import manifest_reader
+from manifest_reader import blocks_reader
+from manifest_reader import manifest_reader
 
-from os import environ
+from os import environ, path
 
 
 def clear_ip_search(output_path):
@@ -243,7 +243,10 @@ def get_build_standard(path, file_list):
     elif path.suffix in (".v", ".sv"):
         standard = "Verilog"
     else:
-        standard = file_list.standard
+        if file_list.no_2008 and path.name in file_list.no_2008:
+            standard = "VHDL"
+        else:
+            standard = file_list.standard
     return standard
 
 
@@ -329,7 +332,7 @@ def generate_filelist(
 
                 path = (manifest.get_source_dir(file_list.kind) / file).resolve()
                 if relative_to is not None:
-                    path = path.relative_to(relative_to)
+                    path = smarter_relative_to(relative_to, path)
                 standard = get_standard(path, file_list, for_ip)
                 path = "{" + str(path).replace("\\", "/") + "}"
                 files.append([path, lib_name, standard])
@@ -353,7 +356,7 @@ def generate_filelist(
                 standard = f"{{{standard}}}"
                 path = file
                 if relative_to is not None:
-                    path = path.relative_to(relative_to)
+                    path = smarter_relative_to(relative_to, path)
                 path = "{" + str(path).replace("\\", "/") + "}"
                 files.append([path, lib_name, standard])
         constraints = other_files["xdc"]
@@ -376,6 +379,10 @@ def generate_filelist(
         f.write(to_write)
 
 
+def smarter_relative_to(path1, path2):
+    
+    return Path(path.relpath(path2, path1))
+
 def update_ip(root_dir, proj_dir):
     """
     Updates the IP as necessary by updated the component.xml with all files
@@ -386,6 +393,6 @@ def update_ip(root_dir, proj_dir):
     """
     generate_filelist(root_dir, proj_dir, relative_to=root_dir, for_ip=True)
     run_vivado(
-        str(Path(__file__).parent / "tcl" / "update_ip.tcl"),
+        str(Path(__file__).parent.parent / "tcl" / "update_ip.tcl"),
         tcl_args=[root_dir / "component.xml", proj_dir / "filelist.tcl"],
     )
