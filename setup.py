@@ -40,7 +40,10 @@ setup(
     packages=find_packages(exclude=["tests", ".github"]),
     install_requires=read_requirements("requirements.txt"),
     entry_points={
-        "console_scripts": ["update-ip = manifest_reader.update_ip:main"]
+        "console_scripts": ["update-ip = manifest_reader.update_ip:main",
+                            "vstyle = manifest_reader.vsg_util:main"]
     },
+    package_data={"manifest_reader": ["vsg.yaml"]},
+
     # extras_require={"test": read_requirements("requirements-test.txt")},
 )

@@ -21,7 +21,7 @@ rule:
     disable: true
   # Increase max line length to 140
   length_001:
-    length: 140
+    length: 150
   # Require all generics to be upper case
   generic_007:
     case: upper
@@ -241,8 +241,6 @@ rule:
   # Dont care about blank lines on case
   case_007:
     disable: true
-  case_008:
-    disable: true
   case_009:
     disable: true
   case_010:
@@ -335,5 +333,3 @@ rule:
   process_400:
     comment_line_ends_group: true
     blank_line_ends_group: true
-  procedure_412:
-    compact_alignment : false

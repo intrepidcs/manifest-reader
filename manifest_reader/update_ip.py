@@ -4,12 +4,7 @@ from pathlib import Path
 
 def main():
     cwd = Path.cwd()
-    component = cwd / "component.xml"
-    if not component.exists():
-        raise Exception(f"No file {component} found!")
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmpdir = Path(tmpdir)
-        update_ip(cwd, tmpdir)
+    update_ip(cwd)
 
 if __name__ == "__main__":
     main()
