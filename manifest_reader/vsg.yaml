@@ -261,8 +261,6 @@ rule:
     disable: true
   constant_014:
    disable: true
-  entity_017:
-   disable: true
   entity_020:
    disable: true
   process_034:
