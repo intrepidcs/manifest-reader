@@ -13,11 +13,12 @@ from vunit.vivado import (
     create_compile_order_file,
 )
 import shutil
+import tempfile
 
-from . import blocks_reader
-from . import manifest_reader
+from manifest_reader import blocks_reader
+from manifest_reader import manifest_reader
 
-from os import environ
+from os import environ, path
 
 
 def clear_ip_search(output_path):
@@ -243,7 +244,10 @@ def get_build_standard(path, file_list):
     elif path.suffix in (".v", ".sv"):
         standard = "Verilog"
     else:
-        standard = file_list.standard
+        if file_list.no_2008 and path.name in file_list.no_2008:
+            standard = "VHDL"
+        else:
+            standard = file_list.standard
     return standard
 
 
@@ -326,10 +330,10 @@ def generate_filelist(
             if file_list.kind == "tb":
                 continue
             for file in file_list.files:
-
                 path = (manifest.get_source_dir(file_list.kind) / file).resolve()
+                print(path)
                 if relative_to is not None:
-                    path = path.relative_to(relative_to)
+                    path = smarter_relative_to(relative_to, path)
                 standard = get_standard(path, file_list, for_ip)
                 path = "{" + str(path).replace("\\", "/") + "}"
                 files.append([path, lib_name, standard])
@@ -345,7 +349,6 @@ def generate_filelist(
                 )
                 path = "{" + path + "}"
                 files.append([path, "{N/A}", "{N/A}"])
-
     if other_files:
         vhdl_libs = other_files["vhdl"]
         for lib_name, data in vhdl_libs.items():
@@ -353,7 +356,7 @@ def generate_filelist(
                 standard = f"{{{standard}}}"
                 path = file
                 if relative_to is not None:
-                    path = path.relative_to(relative_to)
+                    path = smarter_relative_to(relative_to, path)
                 path = "{" + str(path).replace("\\", "/") + "}"
                 files.append([path, lib_name, standard])
         constraints = other_files["xdc"]
@@ -376,7 +379,11 @@ def generate_filelist(
         f.write(to_write)
 
 
-def update_ip(root_dir, proj_dir):
+def smarter_relative_to(path1, path2):
+    
+    return Path(path.relpath(path2, path1))
+
+def update_ip(root_dir, proj_dir=None):
     """
     Updates the IP as necessary by updated the component.xml with all files
 
@@ -384,8 +391,22 @@ def update_ip(root_dir, proj_dir):
         root_dir: The root of the repo
         proj_dir: The directory the vivado project will go in
     """
-    generate_filelist(root_dir, proj_dir, relative_to=root_dir, for_ip=True)
-    run_vivado(
-        str(Path(__file__).parent / "tcl" / "update_ip.tcl"),
-        tcl_args=[root_dir / "component.xml", proj_dir / "filelist.tcl"],
-    )
+    component = root_dir / "component.xml"
+    if not component.exists():
+        raise Exception(f"No file {component} found!")
+    print(f"Reading {component}...")
+    def do_vivado_stuff(proj_dir):
+        generate_filelist(root_dir, proj_dir, relative_to=root_dir, for_ip=True)
+        run_vivado(
+            str(Path(__file__).parent.parent / "tcl" / "update_ip.tcl"),
+            tcl_args=[root_dir / "component.xml", proj_dir / "filelist.tcl"],
+        )
+    if not proj_dir:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmpdir = Path(tmpdir)
+            do_vivado_stuff(tmpdir)
+    else:
+        print(proj_dir)
+
+    
+
