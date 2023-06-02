@@ -26,8 +26,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import manifest_reader
-import blocks_reader
+from manifest_reader import manifest_reader, blocks_reader
 import yaml
 from os import environ
 from pathlib import Path
@@ -38,6 +37,46 @@ import subprocess
 import sys
 
 THIS_DIR = Path(__file__).parent
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Setup VSG")
+    print(sys.argv)
+    parser.add_argument(
+        "additional_config_file",
+        default=None,
+        nargs="?",
+        help="An existing VSG config to append onto the default",
+    )
+    parser.add_argument(
+        "--run",
+        default=False,
+        help="Also run vsg after setting up",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--fix",
+        default=False,
+        action="store_true",
+        help="Also fix errors, only to be used locally",
+    )
+    parser.add_argument(
+        "--vsg-args",
+        default="",
+        help="Arguments to be passed to vsg run if --run specified",
+    )
+    args = parser.parse_args()
+    config_file = setup_vsg(
+        Path(environ.get("BASE_DIR", ".")), args.additional_config_file
+    )
+    if args.run:
+        print(f"Running vsg against config {config_file}")
+        # Command line might pass it in surrounded by quotes, strip out either side
+        vsg_args = args.vsg_args.strip('"')
+        use_shell = sys.platform == "linux"
+        if args.fix:
+            vsg_args += " --fix"
+        subprocess.run(f"vsg -c {config_file} {vsg_args}", check=True, shell=use_shell)
 
 
 def get_vsg_files(root_dir, exclude_patterns=None):
@@ -127,33 +166,6 @@ def setup_vsg(root_dir, addtional_config_file=None):
     return file_list_file
 
 
+
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Setup VSG")
-    print(sys.argv)
-    parser.add_argument(
-        "additional_config_file",
-        default=None,
-        nargs="?",
-        help="An existing VSG config to append onto the default",
-    )
-    parser.add_argument(
-        "--run",
-        default=False,
-        help="Also run vsg after setting up",
-        action="store_true",
-    )
-    parser.add_argument(
-        "--vsg-args",
-        default="",
-        help="Arguments to be passed to vsg run if --run specified",
-    )
-    args = parser.parse_args()
-    config_file = setup_vsg(
-        Path(environ.get("BASE_DIR", ".")), args.additional_config_file
-    )
-    if args.run:
-        print(f"Running vsg against config {config_file}")
-        # Command line might pass it in surrounded by quotes, strip out either side
-        vsg_args = args.vsg_args.strip('"')
-        use_shell = sys.platform == "linux"
-        subprocess.run(f"vsg -c {config_file} {vsg_args}", check=True, shell=use_shell)
+    main()
