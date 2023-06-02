@@ -331,3 +331,5 @@ rule:
   process_400:
     comment_line_ends_group: true
     blank_line_ends_group: true
+  type_500:
+    case: upper
