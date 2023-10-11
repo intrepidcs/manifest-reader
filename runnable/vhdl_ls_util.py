@@ -50,10 +50,11 @@ sys.path.append(str(UTILS_DIR.resolve()))
 import blocks_reader
 import manifest_reader
 
-# Assume cwd if BASE_DIR not found
-# Again so startfile not required for runnables
-BASE_DIR = Path(environ.get("BASE_DIR", "."))
-
+args = sys.argv
+assert len(args) >= 2, "expected at least 1 argument for the base directory!"
+BASE_DIR = Path(args[1])
+DIRS = args[1:]
+print(DIRS)
 
 def main():
     """
@@ -61,7 +62,12 @@ def main():
     Gets all the files in the project and outputs them into a vhdl ls toml file
 
     """
-    libs = get_vhdl_ls_libs(BASE_DIR)
+    libs = {}
+    for p in DIRS:
+        path = Path(p)
+        l = get_vhdl_ls_libs(path)
+        libs.update(l)
+
     vhdl_ls_dict = to_vhdl_ls_dict(libs)
     # pprint(vhdl_ls_dict)
     with open(BASE_DIR / "vhdl_ls.toml", "w+") as file:
