@@ -54,7 +54,7 @@ args = sys.argv
 assert len(args) >= 2, "expected at least 1 argument for the base directory!"
 BASE_DIR = Path(args[1])
 DIRS = args[1:]
-print(DIRS)
+# print(DIRS)
 
 def main():
     """
