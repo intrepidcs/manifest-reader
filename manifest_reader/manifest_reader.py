@@ -80,6 +80,7 @@ class Manifest:
     def __init__(self, manifest_dict, root_dir):
         self.root_dir = Path(root_dir)
         self.name = manifest_dict["name"]
+        self.no_2008 = manifest_dict["no_2008"] if "no_2008" in manifest_dict else None
         if "folder_structure" in manifest_dict:
             self.folder_structure = FolderStructure(manifest_dict["folder_structure"])
         else:
@@ -104,7 +105,7 @@ class Manifest:
                 # Otherwise get specific standard if applicable
                 standard = standards[kind]
             # Add this file list to our file lists
-            file_list = FileList(kind, files, standard)
+            file_list = FileList(kind, files, standard, self.no_2008)
             self.file_lists.append(file_list)
 
         self.blocks = manifest_dict["blocks"] if "blocks" in manifest_dict else None
@@ -185,10 +186,11 @@ class FileList:
         A new `FileList` object
     """
 
-    def __init__(self, kind, files, standard):
+    def __init__(self, kind, files, standard, no_2008 = None):
         self.kind = kind
         self.files = files
         self.standard = standard
+        self.no_2008 = no_2008
 
     kinds = {"dsn": "_dsn", "tb": "_tb", "self": "_lib"}
 

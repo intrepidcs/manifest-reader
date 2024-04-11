@@ -20,7 +20,7 @@ vunit_out/
 ## Start Modelsim
 ###########################################################
 # ignore ModelSim generated files and directories (temp files and so on)
-[_@]*
+# [_@]*
 
 # ignore compilation output of ModelSim
 *.mti
@@ -102,7 +102,7 @@ htmlcov/
 nosetests.xml
 coverage.xml
 *.cover
-*.py,cover
+# *.py,cover
 .hypothesis/
 .pytest_cache/
 cover/
