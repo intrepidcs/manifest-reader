@@ -10,7 +10,7 @@ rule:
   signal_007:
     disable: true
   # Checks for `x <= y when a else z` putting z on a different line.  Not always necessary don't enforce either way
-  concurrent_007:
+  conditional_waveforms_001:
     allow_single_line: true
     disable: true
   # Default prefers clk'event.  Prefer rising_edge(clk) instead
@@ -134,7 +134,7 @@ rule:
   instantiation_034:
     disable: true
   # Dont care about port map comments
-  instantiation_023:
+  port_map_010:
     disable: true
   # Dont care about simple end architecture name
   architecture_024:
