@@ -990,7 +990,7 @@ def add_files_from(blk_dir, vu, args, root_dir):
         if file_list.kind == "dsn":
             lib.add_compile_option(
                 "modelsim.vcom_flags",
-                ["-check_synthesis", "-error", "1400,1401"],
+                ["-error", "1400,1401"],
                 allow_empty=True,
             )
         elif file_list.kind == "tb":
