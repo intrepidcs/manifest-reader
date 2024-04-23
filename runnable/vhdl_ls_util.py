@@ -56,6 +56,7 @@ BASE_DIR = Path(args[1])
 DIRS = args[1:]
 # print(DIRS)
 
+
 def main():
     """
     Main function to be called on the command line

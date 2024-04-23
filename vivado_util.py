@@ -323,7 +323,6 @@ def generate_filelist(
             if file_list.kind == "tb":
                 continue
             for file in file_list.files:
-
                 path = (manifest.get_source_dir(file_list.kind) / file).resolve()
                 if relative_to is not None:
                     path = path.relative_to(relative_to)
