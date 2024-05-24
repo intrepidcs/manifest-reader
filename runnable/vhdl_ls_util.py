@@ -74,7 +74,7 @@ def main():
     # pprint(vhdl_ls_dict)
     with open(BASE_DIR / "vhdl_ls.toml", "w+") as file:
         toml_str = toml.dumps(vhdl_ls_dict)
-        toml_str = re.sub(r"[^\\]\\[^\\]", "\\\\\\\\", toml_str)
+        toml_str = re.sub(r"(?<!\\)\\(?![\\])", "\\\\\\\\", toml_str)
         file.write(toml_str)
 
 
