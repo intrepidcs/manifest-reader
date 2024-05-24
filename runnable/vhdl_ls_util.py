@@ -40,6 +40,7 @@ import sys
 from os import environ
 from pprint import pprint
 import toml
+import re
 
 # Add the repo to our path manually for runnables
 # This way startfile not required
@@ -72,7 +73,9 @@ def main():
     vhdl_ls_dict = to_vhdl_ls_dict(libs)
     # pprint(vhdl_ls_dict)
     with open(BASE_DIR / "vhdl_ls.toml", "w+") as file:
-        toml.dump(vhdl_ls_dict, file)
+        toml_str = toml.dumps(vhdl_ls_dict)
+        toml_str = re.sub(r"[^\\]\\[^\\]", "\\\\\\\\", toml_str)
+        file.write(toml_str)
 
 
 def get_vhdl_ls_libs(root_dir):
