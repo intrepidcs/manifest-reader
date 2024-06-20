@@ -190,7 +190,7 @@ class FileList:
         self.files = files
         self.standard = standard
 
-    kinds = {"dsn": "_dsn", "tb": "_tb", "self": "_lib"}
+    kinds = {"dsn": "_dsn", "tb": "_tb", "self": "_lib", "none": ""}
 
     def get_lib_name(self, blk_name):
         """
