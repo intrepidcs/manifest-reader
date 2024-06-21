@@ -105,7 +105,7 @@ def setup_vsg(root_dir, addtional_config_file=None):
     if addtional_config_file:
         with open(addtional_config_file) as file:
             d = yaml.load(file, Loader=yaml.FullLoader)
-            for k,v in d.items():
+            for k, v in d.items():
                 if k in existing_config:
                     if isinstance(existing_config[k], list):
                         existing_config[k].extend(v)
