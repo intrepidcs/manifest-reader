@@ -104,7 +104,15 @@ def setup_vsg(root_dir, addtional_config_file=None):
 
     if addtional_config_file:
         with open(addtional_config_file) as file:
-            existing_config.update(yaml.load(file, Loader=yaml.FullLoader))
+            d = yaml.load(file, Loader=yaml.FullLoader)
+            for k,v in d.items():
+                if k in existing_config:
+                    if isinstance(existing_config[k], list):
+                        existing_config[k].extend(v)
+                    elif isinstance(existing_config[k], dict):
+                        existing_config[k].update(v)
+                else:
+                    existing_config[k] = v
 
     if "exclude" in existing_config:
         exclude_patterns = existing_config["exclude"]
