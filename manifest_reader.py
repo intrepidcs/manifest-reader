@@ -32,6 +32,7 @@ from sys import platform as _platform
 
 SIMULATORS = ["msim", "msim_free", "ghdl"]
 DEFAULT_SIMULATORS = ["msim", "msim_free"]
+DEFAULT_MAX_THREADS = 5
 
 
 def main():
@@ -117,6 +118,11 @@ class Manifest:
             if "supported_simulators" in manifest_dict
             else DEFAULT_SIMULATORS
         )
+        self.max_threads = (
+            manifest_dict["max_threads"]
+            if "max_threads" in manifest_dict
+            else DEFAULT_MAX_THREADS
+        )
 
     def get_source_dir(self, kind):
         """
@@ -137,6 +143,9 @@ class Manifest:
         for simulator in preference_order:
             if simulator in self.supported_simulators:
                 return simulator
+
+    def get_max_threads(self):
+        return self.max_threads
 
     def get_all_files(self):
         """
