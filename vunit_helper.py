@@ -250,16 +250,17 @@ def setup_vunit(
         if vivado_version is None:
             vivado_version = "2019.1"
         vivado_cmd = get_vivado_cmd(vivado_version)
-        vivado_path = vivado_cmd.parent.parent
-        output_path = args.output_path / "vivado_libs" / args.simulator
-        if args.reload_project:
-            clear_ip_search(output_path)
-        add_vivado_ip(
-            vu,
-            output_path=output_path,
-            project_file=vivado_project,
-            vivado_path=vivado_path,
-        )
+        if vivado_cmd:
+            vivado_path = vivado_cmd.parent.parent
+            output_path = args.output_path / "vivado_libs" / args.simulator
+            if args.reload_project:
+                clear_ip_search(output_path)
+            add_vivado_ip(
+                vu,
+                output_path=output_path,
+                project_file=vivado_project,
+                vivado_path=vivado_path,
+            )
         # Xilinx is strange and adds this magical glbl.v to simulate GSR
         # Not sure what it does in the background, but needs to be considered a top level for all testbenches
         # using it, like PLLs.  Add the equivalent command here for any used simulators
@@ -470,9 +471,9 @@ def get_vivado_cmd(version):
 
     # Couldn't find anything, die :(
     print(
-        f"ERROR: Vivado {version} not found.  Run setup script or set {builder_vivado_env_var}"
+        f"WARNING: Vivado {version} not found.  Run setup script or set {builder_vivado_env_var}"
     )
-    exit(1)
+    # exit(1)
 
 
 def override_create_tests(vu):
