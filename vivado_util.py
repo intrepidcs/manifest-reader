@@ -63,7 +63,7 @@ def compile_standard_libraries(vunit_obj, output_path, vivado_path):
     simname = simulator_class.name
     print(simname)
     if simname == "ghdl":
-        _compile_standard_libraries_unsupported(vunit_obj, output_path)
+        _compile_standard_libraries_unsupported(vunit_obj, output_path, vivado_path)
     else:
         _compile_standard_libraries_supported(vunit_obj, output_path, vivado_path)
     # Clean up after Vivado
@@ -73,7 +73,7 @@ def compile_standard_libraries(vunit_obj, output_path, vivado_path):
             garbage_file.unlink()
 
 
-def _compile_standard_libraries_unsupported(vunit_obj, output_path):
+def _compile_standard_libraries_unsupported(vunit_obj, output_path, vivado_path):
     """
     Compiles standard vivado libraries for simulators that vivado doesn't
     actually support aka GHDL.
@@ -85,8 +85,8 @@ def _compile_standard_libraries_unsupported(vunit_obj, output_path):
         output_path: The output path
     """
     # Stub this out for now
-    return
-    data_dir = Path(environ["XILINX_VIVADO"]) / "data/vhdl/src"
+
+    data_dir = Path(vivado_path) / "data/vhdl/src"
     # libs = {
     #     'unisim' : 'unisims',
     #     # 'unimacro' : 'unimacro',

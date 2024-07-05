@@ -246,7 +246,7 @@ def setup_vunit(
     for blk_dir in blk_dirs:
         vu = add_files_from(blk_dir, vu, args, root_dir)
 
-    if use_vivado_ip and args.simulator and args.simulator != "ghdl":
+    if use_vivado_ip and args.simulator:
         if vivado_version is None:
             vivado_version = "2019.1"
         vivado_cmd = get_vivado_cmd(vivado_version)
