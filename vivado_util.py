@@ -134,6 +134,13 @@ def _compile_standard_libraries_unsupported(vunit_obj, output_path, vivado_path)
     secureip.add_source_files(secureip_files)
     secureip.set_compile_option("ghdl.a_flags", compile_options)
 
+    # add placeholder library for xil_defaultlib with an empty package
+    # This will allow us to pretend we have xil_defaultlib compiled when using GHDL (without Xilinx cores)
+    xil_defaultlib = vunit_obj.add_library("xil_defaultlib")
+    empty_pkg = Path(__file__).parent / "hdl" / "empty_pkg.vhd"
+    xil_defaultlib.add_source_file(empty_pkg)
+    xil_defaultlib.set_compile_option("ghdl.a_flags", compile_options)
+
 
 def _compile_standard_libraries_supported(vunit_obj, output_path, vivado_path=None):
     """
