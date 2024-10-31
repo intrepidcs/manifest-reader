@@ -182,9 +182,11 @@ def setup_vunit(
             f"This will likely cause cache thrashing and other scary things.  Throttling to {num_cores} threads"
         )
         args.num_threads = num_cores
-    if args.simulator == "msim":
+    if args.simulator == "msim" or args.simulator == "qsim":
         # Check that requested licenses are available and throttle them if necessary
-        num_licenses_available = get_num_licenses_available(simulator_install_dir)
+        num_licenses_available = get_num_licenses_available(
+            args.simulator, simulator_install_dir
+        )
         if num_licenses_available == 0:
             print(
                 "Uh-Oh, all licenses are taken :( Giving you one to be put in the queue"
@@ -236,7 +238,11 @@ def setup_vunit(
 
     coverage_enabled = False
     if args.coverage:
-        if args.simulator == "riviera" or args.simulator == "msim":
+        if (
+            args.simulator == "riviera"
+            or args.simulator == "msim"
+            or args.simulator == "qsim"
+        ):
             # Only enable coverage for riviera as modelsim free does not support
             coverage_enabled = True
 
@@ -900,7 +906,7 @@ def yes_input(prompt):
     return input(f"{prompt} (y/n): ").lower() in ("yes", "y")
 
 
-def get_num_licenses_available(simulator_install_dir):
+def get_num_licenses_available(sim, simulator_install_dir):
     """
     Checks how many licenses are available for the simulator
     Currently only works for modelsim, I think
@@ -935,7 +941,12 @@ def get_num_licenses_available(simulator_install_dir):
         print("Assuming 8 licenses available")
         return 8
 
-    vsim_lines = [line for line in lines if "Users of msimpevsim:" in line]
+    vsim_lines = []
+    if sim == "msim":
+        vsim_lines = [line for line in lines if "Users of msimpevsim:" in line]
+    elif sim == "qsim":
+        vsim_lines = [line for line in lines if "Users of msimhdlmixbase:" in line]
+
     if not vsim_lines:
         print("Uh-oh, something went wrong parsing the lmstat output.  Assuming 8?")
         return 8
@@ -1201,7 +1212,6 @@ proc vunit_load {{{{vsim_extra_args ""}}}} {{
                 f" -work {library}"
                 f" {libraries}"
                 f" -suppress 8602"
-                f" +acc"
             )
             if entity != "glbl":
                 command += f" xilinxcorelib_ver.glbl"
