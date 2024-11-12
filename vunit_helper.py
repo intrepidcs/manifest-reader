@@ -27,6 +27,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from pathlib import Path
+import shlex
 from vunit import VUnit, VUnitCLI
 from vunit.sim_if import SimulatorInterface, check_output
 from vunit.sim_if.modelsim import encode_generic_value, fix_path
@@ -1217,7 +1218,7 @@ proc vunit_load {{{{vsim_extra_args ""}}}} {{
                 command += f" xilinxcorelib_ver.glbl"
 
             try:
-                output = check_output(command)
+                output = check_output(shlex.split(command))
                 printer.write("passed", fg="gi")
                 printer.write("\n")
             except subprocess.CalledProcessError as err:
