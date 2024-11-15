@@ -1206,7 +1206,9 @@ proc vunit_load {{{{vsim_extra_args ""}}}} {{
         opt_targets.append(("glbl", "xilinxcorelib_ver"))
         for entity, library in opt_targets:
             printer.write(f"Optimizing {entity}".ljust(50))
-            command = f"{fix_path(str(Path(self._prefix) / 'vopt'))} {entity} -o {entity}_opt"
+            command = (
+                f"{fix_path(str(Path(self._prefix) / 'vopt'))} {entity} -o {entity}_opt"
+            )
             command += f" -modelsimini {fix_path(self._sim_cfg_file_name)}"
             command += f" -quiet"
             command += f" -work {library}"
