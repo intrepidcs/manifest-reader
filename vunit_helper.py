@@ -1214,6 +1214,7 @@ proc vunit_load {{{{vsim_extra_args ""}}}} {{
             command += f" -work {library}"
             command += f" {libraries}"
             command += f" -suppress 8602"
+            command += f" +acc"  # increase signal visibility with classic GUI
 
             if entity != "glbl":
                 command += f" xilinxcorelib_ver.glbl"
