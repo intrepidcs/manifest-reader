@@ -291,7 +291,10 @@ def setup_vunit(
         "ghdl.sim_flags", ["--max-stack-alloc=0"], overwrite=False, allow_empty=True
     )
     vu.set_sim_option(
-        "ghdl.elab_flags", ["-frelaxed"], overwrite=False, allow_empty=True
+        "ghdl.elab_flags",
+        ["-frelaxed", "--ieee=synopsys"],
+        overwrite=False,
+        allow_empty=True,
     )
     # print(vu._project.get_source_files_in_order())
     # print(vu._test_bench_list.get_test_benches())
