@@ -1192,7 +1192,7 @@ proc vunit_load {{{{vsim_extra_args ""}}}} {{
 
         return tcl
 
-    def questa_optimize_project(self, project, printer, target_files):
+    def questa_optimize_project(self, project, printer, target_files, verbose):
         print("Optimizing stuff")
         library_names = self._libraries
         libraries = " ".join([f"-L {lib.name}" for lib in self._libraries])
@@ -1220,6 +1220,10 @@ proc vunit_load {{{{vsim_extra_args ""}}}} {{
                 command += f" xilinxcorelib_ver.glbl"
 
             try:
+                if verbose:
+                    printer.write("\n")
+                    printer.write(command)
+                    printer.write("\n")
                 output = check_output(shlex.split(command))
                 printer.write("passed", fg="gi")
                 printer.write("\n")
@@ -1230,9 +1234,11 @@ proc vunit_load {{{{vsim_extra_args ""}}}} {{
                 printer.write("\n")
                 printer.write("=== Command output: ===\n%s\n" % err.output)
 
-    def optimize_project(self, project, printer, target_files):
+    def optimize_project(self, project, printer, target_files, verbose):
         if simulator == "qsim":
-            return questa_optimize_project(self, project, printer, target_files)
+            return questa_optimize_project(
+                self, project, printer, target_files, verbose
+            )
         return True
 
     def custom_compile(self, simulator_if: SimulatorInterface):
@@ -1262,6 +1268,7 @@ proc vunit_load {{{{vsim_extra_args ""}}}} {{
             self._project,
             printer=self._printer,
             target_files=target_files,
+            verbose=self._args.verbose,
         )
 
     override_instance_method(vu, vu._compile, custom_compile)
