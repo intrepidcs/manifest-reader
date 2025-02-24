@@ -110,10 +110,11 @@ def _compile_standard_libraries_unsupported(vunit_obj, output_path, vivado_path)
     files = list((data_dir / "unisims").rglob("*.vhd"))
     secureip_files = []
     unisim_files = []
+    ignore_list = ["retarget_VCOMP.vhd", "unisim_VCOMP.vhd"]
     for file in files:
         file = file.resolve()
-        if "retarget" in str(file):
-            # Ignore retarget stuff
+        # ignore retarget_VCOMP.vhd
+        if file.name in ignore_list:
             continue
         if file.parent.name == "secureip":
             secureip_files.append(file)
