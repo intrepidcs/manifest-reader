@@ -227,7 +227,12 @@ def setup_vunit(
     # Have not noticed performance decrease but may want to watch out for them
     environ["PYTHONUNBUFFERED"] = str(True)
 
-    vu = VUnit.from_args(args)
+    # compile_builtins is deprecated in VUnit 4.7
+    if hasattr(VUnit, "add_vhdl_builtins"):
+        vu = VUnit.from_args(args, compile_builtins=False)
+        vu.add_vhdl_builtins()
+    else:
+        vu = VUnit.from_args(args)
     # exit()
 
     if use_preprocessing:
