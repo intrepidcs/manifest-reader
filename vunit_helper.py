@@ -1108,7 +1108,9 @@ def add_files_to_lib(lib, file_list, manifest, as_ref, vu, glbl):
 
         source_file = lib.add_source_file(full_file_path, vhdl_standard=vhdl_standard)
         if glbl and file_list.kind == "tb":
-            vu._project.add_manual_dependency(source_file._source_file, depends_on=glbl._source_file)
+            vu._project.add_manual_dependency(
+                source_file._source_file, depends_on=glbl._source_file
+            )
     return lib
 
 
