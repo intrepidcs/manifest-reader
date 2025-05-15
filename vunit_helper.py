@@ -255,8 +255,15 @@ def setup_vunit(
     # Create new attribute at runtime for the post check to see if coverage should be reported
     setattr(vu, "coverage_enabled", coverage_enabled)
 
+    glbl = None
+    if args.simulator == "xsim":
+        xil_defaultlib = vu.add_library("xil_defaultlib")
+        glbl = xil_defaultlib.add_source_file(
+            simulator_install_dir.parent / "data/verilog/src/glbl.v"
+        )
+
     for blk_dir in blk_dirs:
-        vu = add_files_from(blk_dir, vu, args, root_dir)
+        vu = add_files_from(blk_dir, vu, args, root_dir, glbl)
 
     if use_vivado_ip and args.simulator:
         if vivado_version is None:
@@ -324,6 +331,8 @@ def setup_vunit(
         vu.set_sim_option(
             "modelsim.vsim_flags", ["-coverage"], overwrite=False, allow_empty=True
         )
+
+    vu.set_sim_option("xsim.enable_glbl", True)
 
     vu.add_osvvm()
     vu.add_verification_components()
@@ -975,7 +984,7 @@ def get_num_licenses_available(sim, simulator_install_dir):
     return num_avail
 
 
-def add_files_from(blk_dir, vu, args, root_dir):
+def add_files_from(blk_dir, vu, args, root_dir, glbl):
     """
     Reads the manifest for the given blk dir and adds all files within it with appropriate options
 
@@ -984,6 +993,7 @@ def add_files_from(blk_dir, vu, args, root_dir):
         vu:       The Vunit object
         args:     The argparse arguments
         root_dir: The root of the repository
+        glbl:     Xilinx glbl.v used only for xsim
 
     Returns:
         The modified vunit object
@@ -1004,9 +1014,10 @@ def add_files_from(blk_dir, vu, args, root_dir):
     ):
         # Don't try to compile blocks we can't compile
         return vu
+
     for file_list in manifest.file_lists:
         lib = vu.add_library(file_list.get_lib_name(manifest.name))
-        lib = add_files_to_lib(lib, file_list, manifest, as_ref, vu)
+        lib = add_files_to_lib(lib, file_list, manifest, as_ref, vu, glbl)
 
         if file_list.kind == "dsn":
             lib.add_compile_option(
@@ -1032,12 +1043,13 @@ def add_files_from(blk_dir, vu, args, root_dir):
             # Need to cache all compile results and be able to hotswap them as necessary
             # For now just provide an option
             lib.add_compile_option("rivierapro.vcom_flags", ["-O3"], allow_empty=True)
+
     # print(vu._test_bench_list.get_test_benches())
     # print(vu._project.get_source_files_in_order())
     return vu
 
 
-def add_files_to_lib(lib, file_list, manifest, as_ref, vu):
+def add_files_to_lib(lib, file_list, manifest, as_ref, vu, glbl):
     """
     Adds the files in the file list to the library with the given standard
 
@@ -1047,6 +1059,7 @@ def add_files_to_lib(lib, file_list, manifest, as_ref, vu):
         manifest:  A Manifest object
         as_ref:    True when the library should be added as an external reference, else False
         vu:        The Vunit object
+        glbl:      Xilinx glbl.v used only for xsim
 
     Returns:
         The modified Library
@@ -1094,6 +1107,8 @@ def add_files_to_lib(lib, file_list, manifest, as_ref, vu):
                 continue
 
         source_file = lib.add_source_file(full_file_path, vhdl_standard=vhdl_standard)
+        if glbl and file_list.kind == "tb":
+            vu._project.add_manual_dependency(source_file._source_file, depends_on=glbl._source_file)
     return lib
 
 
@@ -1263,6 +1278,7 @@ proc vunit_load {{{{vsim_extra_args ""}}}} {{
             )
 
         optimization_files = []
+        simulator_if.add_simulator_specific(self._project)
         target_files = self._get_testbench_files(simulator_if)
         for target_file in target_files:
             files_recompiled = self._project.get_minimal_file_set_in_compile_order(

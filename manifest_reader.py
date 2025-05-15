@@ -30,7 +30,7 @@ from pathlib import Path
 import yaml
 from sys import platform as _platform
 
-SIMULATORS = ["msim", "msim_free", "ghdl", "qsim"]
+SIMULATORS = ["msim", "msim_free", "ghdl", "qsim", "xsim"]
 DEFAULT_SIMULATORS = ["msim", "msim_free"]
 DEFAULT_MAX_THREADS = 5
 
@@ -139,7 +139,7 @@ class Manifest:
         return self.root_dir / self.folder_structure.structure[kind]
 
     def get_preferred_simulator(self):
-        preference_order = ["ghdl", "qsim", "msim", "msim_free"]
+        preference_order = ["ghdl", "qsim", "msim", "msim_free", "xsim"]
         for simulator in preference_order:
             if simulator in self.supported_simulators:
                 return simulator
