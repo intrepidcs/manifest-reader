@@ -263,8 +263,7 @@ def setup_vunit(
             if vivado_version is None:
                 vivado_version = "2019.1"
             vivado_cmd = get_vivado_cmd(vivado_version)
-            if vivado_cmd:
-                vivado_path = vivado_cmd.parent.parent
+            vivado_path = vivado_cmd.parent.parent if vivado_cmd else None
 
         if vivado_path:
             output_path = args.output_path / "vivado_libs" / args.simulator
@@ -497,6 +496,7 @@ def get_vivado_cmd(version):
     print(
         f"WARNING: Vivado {version} not found.  Run setup script or set {builder_vivado_env_var}"
     )
+    return None
     # exit(1)
 
 
