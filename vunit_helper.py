@@ -256,30 +256,27 @@ def setup_vunit(
     setattr(vu, "coverage_enabled", coverage_enabled)
 
     glbl = None
-    if args.simulator == "xsim":
-        xil_defaultlib = vu.add_library("xil_defaultlib")
-        glbl = xil_defaultlib.add_source_file(
-            simulator_install_dir.parent / "data/verilog/src/glbl.v"
-        )
-
-    for blk_dir in blk_dirs:
-        vu = add_files_from(blk_dir, vu, args, root_dir, glbl)
-
     if use_vivado_ip and args.simulator:
-        if vivado_version is None:
-            vivado_version = "2019.1"
-        vivado_cmd = get_vivado_cmd(vivado_version)
-        if vivado_cmd:
-            vivado_path = vivado_cmd.parent.parent
+        if args.simulator == "xsim":
+            vivado_path = simulator_install_dir.parent
+        else:
+            if vivado_version is None:
+                vivado_version = "2019.1"
+            vivado_cmd = get_vivado_cmd(vivado_version)
+            if vivado_cmd:
+                vivado_path = vivado_cmd.parent.parent
+
+        if vivado_path:
             output_path = args.output_path / "vivado_libs" / args.simulator
             if args.reload_project:
                 clear_ip_search(output_path)
-            add_vivado_ip(
+            glbl = add_vivado_ip(
                 vu,
                 output_path=output_path,
                 project_file=vivado_project,
                 vivado_path=vivado_path,
             )
+
         # Xilinx is strange and adds this magical glbl.v to simulate GSR
         # Not sure what it does in the background, but needs to be considered a top level for all testbenches
         # using it, like PLLs.  Add the equivalent command here for any used simulators
@@ -292,6 +289,9 @@ def setup_vunit(
                 overwrite=False,
                 allow_empty=True,
             )
+
+    for blk_dir in blk_dirs:
+        vu = add_files_from(blk_dir, vu, args, root_dir, glbl)
 
     vu.set_sim_option(
         "modelsim.vsim_flags", ["-error", "3473"], overwrite=False, allow_empty=True

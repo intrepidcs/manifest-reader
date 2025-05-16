@@ -43,15 +43,25 @@ def add_vivado_ip(vunit_obj, output_path, project_file, vivado_path):
 
     opath = Path(output_path)
 
+    simulator_class = SIMULATOR_FACTORY.select_simulator()
+    simname = simulator_class.name
+
     standard_library_path = str(opath / "standard")
-    compile_standard_libraries(vunit_obj, standard_library_path, vivado_path)
+    compile_standard_libraries(vunit_obj, standard_library_path, vivado_path, simname)
 
     if project_file is not None:
         project_ip_path = str(opath / "project_ip")
         add_project_ip(vunit_obj, project_file, project_ip_path, vivado_path)
 
+    if simname == "xsim":
+        xil_defaultlib = vunit_obj.add_library("xil_defaultlib", allow_duplicate=True)
+        glbl = xil_defaultlib.add_source_file(vivado_path / "data/verilog/src/glbl.v")
+        return glbl
 
-def compile_standard_libraries(vunit_obj, output_path, vivado_path):
+    return None
+
+
+def compile_standard_libraries(vunit_obj, output_path, vivado_path, simulator):
     """
     Compiles standard vivado libraries
 
@@ -206,8 +216,7 @@ def _compile_standard_libraries_supported(vunit_obj, output_path, vivado_path=No
             vunit_obj.add_external_library(library_name, path)
 
     xilinxcorelib_ver = vunit_obj.add_library("xilinxcorelib_ver")
-    vivado_base = Path(shutil.which("vivado")).parent.parent
-    xilinxcorelib_ver.add_source_files(vivado_base / "data/verilog/src/glbl.v")
+    xilinxcorelib_ver.add_source_files(vivado_path / "data/verilog/src/glbl.v")
 
     with open(done_token, "w") as fptr:
         fptr.write("done")
