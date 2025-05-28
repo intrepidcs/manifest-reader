@@ -61,7 +61,7 @@ def add_vivado_ip(vunit_obj, output_path, project_file, vivado_path):
     return None
 
 
-def compile_standard_libraries(vunit_obj, output_path, vivado_path, simulator):
+def compile_standard_libraries(vunit_obj, output_path, vivado_path, simname):
     """
     Compiles standard vivado libraries
 
@@ -69,8 +69,6 @@ def compile_standard_libraries(vunit_obj, output_path, vivado_path, simulator):
         vunit_obj: A `VUnit` object
         output_path: The output path
     """
-    simulator_class = SIMULATOR_FACTORY.select_simulator()
-    simname = simulator_class.name
     print(simname)
     if simname == "ghdl":
         _compile_standard_libraries_unsupported(vunit_obj, output_path, vivado_path)
