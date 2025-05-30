@@ -276,6 +276,10 @@ def setup_vunit(
                 vivado_path=vivado_path,
             )
 
+    for blk_dir in blk_dirs:
+        vu = add_files_from(blk_dir, vu, args, root_dir, glbl)
+
+    if use_vivado_ip and args.simulator:
         # Xilinx is strange and adds this magical glbl.v to simulate GSR
         # Not sure what it does in the background, but needs to be considered a top level for all testbenches
         # using it, like PLLs.  Add the equivalent command here for any used simulators
@@ -288,9 +292,6 @@ def setup_vunit(
                 overwrite=False,
                 allow_empty=True,
             )
-
-    for blk_dir in blk_dirs:
-        vu = add_files_from(blk_dir, vu, args, root_dir, glbl)
 
     vu.set_sim_option(
         "modelsim.vsim_flags", ["-error", "3473"], overwrite=False, allow_empty=True
