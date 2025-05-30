@@ -62,7 +62,7 @@ def compile_standard_libraries(vunit_obj, output_path, vivado_path):
     simulator_class = SIMULATOR_FACTORY.select_simulator()
     simname = simulator_class.name
     print(simname)
-    if simname == "ghdl":
+    if simname == "ghdl" or simname == "nvc":
         _compile_standard_libraries_unsupported(vunit_obj, output_path, vivado_path)
     else:
         _compile_standard_libraries_supported(vunit_obj, output_path, vivado_path)
@@ -125,22 +125,28 @@ def _compile_standard_libraries_unsupported(vunit_obj, output_path, vivado_path)
     #         f.write(str(file) + '\n')
     # exit()
 
-    compile_options = "-fexplicit -frelaxed-rules --no-vital-checks --warn-binding --mb-comments --ieee=synopsys".split()
+    ghdl_compile_options = "-fexplicit -frelaxed-rules --no-vital-checks --warn-binding --mb-comments --ieee=synopsys".split()
+    nvc_compile_options = "-M 32M".split()
 
     unisim.add_source_files(unisim_files)
-    unisim.set_compile_option("ghdl.a_flags", compile_options)
+    unisim.set_compile_option("ghdl.a_flags", ghdl_compile_options)
     # unisim.get_source_file('*PLLE4_BASE.vhd').add_dependency_on(unisim.get_source_file('*PLLE4_ADV.vhd'))
+    unisim.add_compile_option("nvc.flags", nvc_compile_options, allow_empty=True)
 
     secureip = vunit_obj.add_library("secureip")
     secureip.add_source_files(secureip_files)
-    secureip.set_compile_option("ghdl.a_flags", compile_options)
+    secureip.set_compile_option("ghdl.a_flags", ghdl_compile_options)
+    secureip.add_compile_option("nvc.flags", nvc_compile_options, allow_empty=True)
 
     # add placeholder library for xil_defaultlib with an empty package
     # This will allow us to pretend we have xil_defaultlib compiled when using GHDL (without Xilinx cores)
     xil_defaultlib = vunit_obj.add_library("xil_defaultlib")
     empty_pkg = Path(__file__).parent / "hdl" / "empty_pkg.vhd"
     xil_defaultlib.add_source_file(empty_pkg)
-    xil_defaultlib.set_compile_option("ghdl.a_flags", compile_options)
+    xil_defaultlib.set_compile_option("ghdl.a_flags", ghdl_compile_options)
+    xil_defaultlib.add_compile_option(
+        "nvc.flags", nvc_compile_options, allow_empty=True
+    )
 
 
 def _compile_standard_libraries_supported(vunit_obj, output_path, vivado_path=None):
