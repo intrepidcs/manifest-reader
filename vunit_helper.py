@@ -311,7 +311,7 @@ def setup_vunit(
         "modelsim.init_file.gui",
         str(Path(__file__).parent / "tcl" / "modelsim_gui.tcl"),
     )
-    vu.set_sim_option("nvc.heap_size", "1024M")
+    vu.set_sim_option("nvc.heap_size", "4096M")
 
     if coverage_enabled:
         if coverage_enabled:
