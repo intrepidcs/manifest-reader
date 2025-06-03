@@ -318,6 +318,7 @@ def setup_vunit(
         "modelsim.init_file.gui",
         str(Path(__file__).parent / "tcl" / "modelsim_gui.tcl"),
     )
+    vu.set_sim_option("nvc.heap_size", "4096M")
 
     if coverage_enabled:
         if coverage_enabled:
@@ -1039,6 +1040,8 @@ def add_files_from(blk_dir, vu, args, root_dir, glbl):
         lib.add_compile_option(
             "modelsim.vcom_flags", ["+cover=sbcexf"], allow_empty=True
         )
+        lib.add_compile_option("nvc.flags", ["-M32M"], allow_empty=True)
+        lib.add_compile_option("nvc.a_flags", ["--relaxed"], allow_empty=True)
         if not args.no_optimization:
             # I want to only turn this on for batch runs but it will require vunit changes
             # Need to cache all compile results and be able to hotswap them as necessary
@@ -1066,7 +1069,7 @@ def add_files_to_lib(lib, file_list, manifest, as_ref, vu, glbl):
         The modified Library
 
     """
-    if vu.get_simulator_name() == "ghdl":
+    if vu.get_simulator_name() == "ghdl" or vu.get_simulator_name() == "nvc":
         vhdl_standard = "2008"
     else:
         vhdl_standard = to_vunit_vhdl_standard(file_list.standard)
