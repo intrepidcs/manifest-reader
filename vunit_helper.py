@@ -1196,9 +1196,9 @@ proc vunit_load {{{{vsim_extra_args ""}}}} {{
             break_on_assert=vhdl_assert_stop_level_mapping[
                 config.vhdl_assert_stop_level
             ],
-            no_warnings=1
-            if config.sim_options.get("disable_ieee_warnings", False)
-            else 0,
+            no_warnings=(
+                1 if config.sim_options.get("disable_ieee_warnings", False) else 0
+            ),
         )
 
         return tcl
