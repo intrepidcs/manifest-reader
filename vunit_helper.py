@@ -306,12 +306,14 @@ def setup_vunit(
     vu.set_sim_option(
         "rivierapro.init_file.gui",
         str(Path(__file__).parent / "tcl" / "riviera_gui.tcl"),
+        allow_empty=True,
     )
     vu.set_sim_option(
         "modelsim.init_file.gui",
         str(Path(__file__).parent / "tcl" / "modelsim_gui.tcl"),
+        allow_empty=True,
     )
-    vu.set_sim_option("nvc.heap_size", "4096M")
+    vu.set_sim_option("nvc.heap_size", "4096M", allow_empty=True)
 
     if coverage_enabled:
         if coverage_enabled:
