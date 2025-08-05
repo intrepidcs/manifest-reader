@@ -149,7 +149,7 @@ def _compile_standard_libraries_unsupported(vunit_obj, output_path, vivado_path)
     )
 
 
-def _compile_standard_libraries_supported(vunit_obj, output_path, vivado_path=None):
+def _compile_standard_libraries_supported(vunit_obj, output_path, vivado_path):
     """
     Compile Xilinx standard libraries using Vivado TCL command
     """
@@ -208,8 +208,7 @@ def _compile_standard_libraries_supported(vunit_obj, output_path, vivado_path=No
             vunit_obj.add_external_library(library_name, path)
 
     xilinxcorelib_ver = vunit_obj.add_library("xilinxcorelib_ver")
-    vivado_base = Path(shutil.which("vivado")).parent.parent
-    xilinxcorelib_ver.add_source_files(vivado_base / "data/verilog/src/glbl.v")
+    xilinxcorelib_ver.add_source_files(vivado_path / "data/verilog/src/glbl.v")
 
     with open(done_token, "w") as fptr:
         fptr.write("done")
