@@ -992,6 +992,8 @@ def add_files_from(blk_dir, vu, args, root_dir):
         The modified vunit object
 
     """
+    if args.verbose:
+        print(f"Loading files from {blk_dir}")
     try:
         # If there exists a relative path from here to root dir then it must be local
         rel_path = Path(blk_dir).resolve().relative_to(root_dir)
@@ -1006,7 +1008,9 @@ def add_files_from(blk_dir, vu, args, root_dir):
         and args.simulator not in manifest.supported_simulators
     ):
         # Don't try to compile blocks we can't compile
+        print(f"WARNING: simulator {args.simulator} not supported for {blk_dir}")
         return vu
+
     for file_list in manifest.file_lists:
         lib = vu.add_library(file_list.get_lib_name(manifest.name))
         lib = add_files_to_lib(lib, file_list, manifest, as_ref, vu)
