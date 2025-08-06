@@ -1032,6 +1032,11 @@ def add_files_from(blk_dir, vu, args, root_dir):
         )
         lib.add_compile_option("nvc.flags", ["-M32M"], allow_empty=True)
         lib.add_compile_option("nvc.a_flags", ["--relaxed"], allow_empty=True)
+        lib.add_compile_option(
+            "ghdl.a_flags",
+            ["-frelaxed", "-fsynopsys"],
+            allow_empty=True,
+        )
         if not args.no_optimization:
             # I want to only turn this on for batch runs but it will require vunit changes
             # Need to cache all compile results and be able to hotswap them as necessary
