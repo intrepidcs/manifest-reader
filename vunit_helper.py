@@ -313,12 +313,14 @@ def setup_vunit(
     vu.set_sim_option(
         "rivierapro.init_file.gui",
         str(Path(__file__).parent / "tcl" / "riviera_gui.tcl"),
+        allow_empty=True,
     )
     vu.set_sim_option(
         "modelsim.init_file.gui",
         str(Path(__file__).parent / "tcl" / "modelsim_gui.tcl"),
+        allow_empty=True,
     )
-    vu.set_sim_option("nvc.heap_size", "4096M")
+    vu.set_sim_option("nvc.heap_size", "4096M", allow_empty=True)
 
     if coverage_enabled:
         if coverage_enabled:
@@ -1001,6 +1003,8 @@ def add_files_from(blk_dir, vu, args, root_dir, glbl):
         The modified vunit object
 
     """
+    if args.verbose:
+        print(f"Loading files from {blk_dir}")
     try:
         # If there exists a relative path from here to root dir then it must be local
         rel_path = Path(blk_dir).resolve().relative_to(root_dir)
@@ -1015,6 +1019,7 @@ def add_files_from(blk_dir, vu, args, root_dir, glbl):
         and args.simulator not in manifest.supported_simulators
     ):
         # Don't try to compile blocks we can't compile
+        print(f"WARNING: simulator {args.simulator} not supported for {blk_dir}")
         return vu
 
     for file_list in manifest.file_lists:
@@ -1042,6 +1047,11 @@ def add_files_from(blk_dir, vu, args, root_dir, glbl):
         )
         lib.add_compile_option("nvc.flags", ["-M32M"], allow_empty=True)
         lib.add_compile_option("nvc.a_flags", ["--relaxed"], allow_empty=True)
+        lib.add_compile_option(
+            "ghdl.a_flags",
+            ["-frelaxed", "-fsynopsys"],
+            allow_empty=True,
+        )
         if not args.no_optimization:
             # I want to only turn this on for batch runs but it will require vunit changes
             # Need to cache all compile results and be able to hotswap them as necessary
@@ -1214,9 +1224,9 @@ proc vunit_load {{{{vsim_extra_args ""}}}} {{
             break_on_assert=vhdl_assert_stop_level_mapping[
                 config.vhdl_assert_stop_level
             ],
-            no_warnings=1
-            if config.sim_options.get("disable_ieee_warnings", False)
-            else 0,
+            no_warnings=(
+                1 if config.sim_options.get("disable_ieee_warnings", False) else 0
+            ),
         )
 
         return tcl

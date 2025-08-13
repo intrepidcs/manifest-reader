@@ -160,7 +160,7 @@ def _compile_standard_libraries_unsupported(vunit_obj, output_path, vivado_path)
     )
 
 
-def _compile_standard_libraries_supported(vunit_obj, output_path, vivado_path=None):
+def _compile_standard_libraries_supported(vunit_obj, output_path, vivado_path):
     """
     Compile Xilinx standard libraries using Vivado TCL command
     """
