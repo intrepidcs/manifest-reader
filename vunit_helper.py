@@ -781,20 +781,27 @@ def set_simulator(simulator_name):
     else:
         install_locations = LINUX_INSTALL_LOCATIONS
         os_pattern = "linux_path_pattern"
+    installs = []
     for root in install_locations:
         root = root.expanduser()
-        pattern = simulator[os_pattern]
-        if "*" in pattern:
-            installs = list(root.glob(pattern))
-        else:
-            install = root / pattern
-            installs = [install] if install.exists() else []
+        patterns = simulator[os_pattern]
+        # some support lists
+        if not isinstance(patterns, list):
+            patterns = [patterns]
+        for pattern in patterns:
+            if "*" in pattern:
+                installs.extend(list(root.glob(pattern)))
+            else:
+                install = root / pattern
+                installs.extend([install] if install.exists() else [])
 
         if not installs:
             install_pattern = str((root / pattern).resolve())
             searched_patterns.append(install_pattern)
             continue
 
+    installs = sorted(installs, reverse=True)
+    if len(installs) > 0:
         if len(installs) > 1:
             if simulator_name == "ghdl":
                 # Pick a ghdl preference
@@ -807,11 +814,12 @@ def set_simulator(simulator_name):
         environ[f"VUNIT_{simulator['vunit_name'].upper()}_PATH"] = install
         # override_vunit_init(simulator_name)
         return Path(install)
-    print(
-        f"Unable to locate simulator install for {simulator_name}.  Searched the following patterns:"
-    )
-    pprint(searched_patterns)
-    exit(1)
+    else:
+        print(
+            f"Unable to locate simulator install for {simulator_name}.  Searched the following patterns:"
+        )
+        pprint(searched_patterns)
+        exit(1)
 
 
 def override_vunit_init(simulator_name):
