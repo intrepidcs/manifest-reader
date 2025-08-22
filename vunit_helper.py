@@ -495,6 +495,10 @@ def get_vivado_cmd(version):
         if vivado_version == version:
             # Easy enough, the one on path was what we wanted
             return Path(vivado_cmd)
+        else:
+            print(
+                f"WARNING: Vivado {vivado_version} found, but doesn't match the requested {version}"
+            )
 
     # Didn't find it, look through environment variables
     version_name = version.replace(".", "_")
