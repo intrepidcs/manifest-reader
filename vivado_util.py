@@ -32,7 +32,7 @@ def clear_ip_search(output_path):
         to_del.unlink()
 
 
-def add_vivado_ip(vunit_obj, output_path, project_file, vivado_path):
+def add_vivado_ip(vunit_obj, output_path, project_file, vivado_path, update_ip):
     """
     Add vivado (and compile if necessary) vivado ip to vunit project.
     """
@@ -51,7 +51,9 @@ def add_vivado_ip(vunit_obj, output_path, project_file, vivado_path):
 
     if project_file is not None:
         project_ip_path = str(opath / "project_ip")
-        add_project_ip(vunit_obj, project_file, project_ip_path, vivado_path)
+        add_project_ip(
+            vunit_obj, project_file, project_ip_path, vivado_path, update_ip=update_ip
+        )
 
     if simname == "xsim":
         xil_defaultlib = vunit_obj.add_library("xil_defaultlib", allow_duplicate=True)
@@ -226,7 +228,9 @@ def _compile_standard_libraries_supported(vunit_obj, output_path, vivado_path):
         fptr.write("done")
 
 
-def add_project_ip(vunit_obj, project_file, output_path, vivado_path=None, clean=False):
+def add_project_ip(
+    vunit_obj, project_file, output_path, vivado_path=None, clean=False, update_ip=True
+):
     """
     Add all IP files from Vivado project to the vunit project
 
@@ -239,6 +243,9 @@ def add_project_ip(vunit_obj, project_file, output_path, vivado_path=None, clean
     compile_order_file = str(Path(output_path) / "compile_order.txt")
 
     if clean or not Path(compile_order_file).exists():
+        if update_ip:
+            update_project_ip(project_file, vivado_path)
+
         create_compile_order_file(
             project_file, compile_order_file, vivado_path=vivado_path
         )
@@ -248,7 +255,10 @@ def add_project_ip(vunit_obj, project_file, output_path, vivado_path=None, clean
             % str(Path(compile_order_file).resolve())
         )
 
-    return add_from_compile_order_file(vunit_obj, compile_order_file)
+    files = add_from_compile_order_file(vunit_obj, compile_order_file)
+    for f in files:
+        print(f)
+    return files
 
 
 def get_build_standard(path, file_list):
@@ -409,4 +419,21 @@ def update_ip(root_dir, proj_dir):
     run_vivado(
         str(Path(__file__).parent / "tcl" / "update_ip.tcl"),
         tcl_args=[root_dir / "component.xml", proj_dir / "filelist.tcl"],
+    )
+
+
+def update_project_ip(project_file, vivado_path):
+    """
+    Updates the project IPs as necessary using the selected Vivado version
+
+    Args:
+        project_file: The Vivado project file
+        vivado_path: The path to the Vivado installation
+    """
+    # upgrade IPs in the project for the current Vivado version
+    print("Updating IPs...")
+    run_vivado(
+        str(Path(__file__).parent / "tcl" / "update_project_ip.tcl"),
+        tcl_args=[project_file],
+        vivado_path=vivado_path,
     )

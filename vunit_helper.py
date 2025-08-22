@@ -152,6 +152,7 @@ def setup_vunit(
     disable_ieee_warnings=False,
     use_preprocessing=True,
     vivado_version=None,
+    update_vivado_ip=False,
 ):
     """
     Takes care of boilerplate setup for vunit
@@ -165,6 +166,7 @@ def setup_vunit(
         disable_ieee_warnings: When True, disables some usually spammed warnings from ieee
         use_preprocessing: Allow vunit to copy files to a preprocessing folder, should always be on for sim runs
         vivado_version: Optional specification of which vivado version the vivado ip is compatible with
+        update_vivado_ip: Auto upgrade Vivado IPs
 
     Returns:
         A new `Vunit` object with all files from the provided blocks added and most configurations set
@@ -274,6 +276,7 @@ def setup_vunit(
                 output_path=output_path,
                 project_file=vivado_project,
                 vivado_path=vivado_path,
+                update_ip=update_vivado_ip,
             )
 
     for blk_dir in blk_dirs:
@@ -423,7 +426,12 @@ def run_vunit_main(vu):
 
 
 def run_vunit(
-    args, blk_dirs, use_vivado_ip=None, vivado_project=None, disable_ieee_warnings=False
+    args,
+    blk_dirs,
+    use_vivado_ip=None,
+    vivado_project=None,
+    disable_ieee_warnings=False,
+    update_vivado_ip=False,
 ):
     """
     Takes care of boilerplate setup for vunit and runs vunit
@@ -435,9 +443,15 @@ def run_vunit(
         vivado_project: When not None, points to a .xpr file containing instantiated IP.
         The project will be parsed for IP and its output artifacts compiled for use in the simulation
         disable_ieee_warnings: When True, disables some usually spammed warnings from ieee
+        update_vivado_ip: Auto upgrade Vivado IPs
     """
     vu = setup_vunit(
-        args, blk_dirs, use_vivado_ip, vivado_project, disable_ieee_warnings
+        args,
+        blk_dirs,
+        use_vivado_ip,
+        vivado_project,
+        disable_ieee_warnings,
+        update_vivado_ip,
     )
     run_vunit_main(vu)
 
@@ -675,7 +689,11 @@ def override_read_results(vu):
 
 
 def gen_prj_default(
-    blk_dirs, vivado_project=None, use_vivado_ip=True, vivado_version=None
+    blk_dirs,
+    vivado_project=None,
+    use_vivado_ip=True,
+    vivado_version=None,
+    update_vivado_ip=False,
 ):
     """
     Utils function to generate a default VUnit project containing the provided blocks
@@ -685,6 +703,7 @@ def gen_prj_default(
         vivado_project: Optional path to an xpr with IP that needs to be included
         use_vivado_ip:  Set to False if no XPM/unisim IP needed, speeds up compile time drastically
         vivado_version: Optional specification of which vivado version the vivado ip is compatible with
+        update_vivado_ip: Auto upgrade Vivado IPs
 
     Returns:
         A valid `VUnit` object with all the provided blocks added, default arguments, etc.
@@ -700,6 +719,7 @@ def gen_prj_default(
         disable_ieee_warnings=True,
         vivado_project=vivado_project,
         vivado_version=vivado_version,
+        update_vivado_ip=update_vivado_ip,
     )
     return vu
 
@@ -711,6 +731,7 @@ def run_vunit_main_default(
     vivado_project=None,
     use_vivado_ip=True,
     vivado_version=None,
+    update_vivado_ip=False,
 ):
     """
     Runs vunit with all defaults for the provided blocks, optionally also running the provided
@@ -723,6 +744,7 @@ def run_vunit_main_default(
         vivado_project:        Optional path to an xpr with IP that needs to be included
         use_vivado_ip:         Set to False if no XPM/unisim IP needed, speeds up compile time drastically
         vivado_version:        Optionally specify what vivado version is compatible if IP used
+        update_vivado_ip:      Auto upgrade Vivado IPs
     """
     if tb is None:
         tb = get_nearest_tb(Path(inspect.stack()[1].filename).resolve())
@@ -731,6 +753,7 @@ def run_vunit_main_default(
         vivado_project=vivado_project,
         use_vivado_ip=use_vivado_ip,
         vivado_version=vivado_version,
+        update_vivado_ip=update_vivado_ip,
     )
     tb_obj = prj.library(tb).entity(tb)
     if add_test_configs_func is not None:
