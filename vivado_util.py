@@ -255,10 +255,7 @@ def add_project_ip(
             % str(Path(compile_order_file).resolve())
         )
 
-    files = add_from_compile_order_file(vunit_obj, compile_order_file)
-    for f in files:
-        print(f)
-    return files
+    return add_from_compile_order_file(vunit_obj, compile_order_file)
 
 
 def get_build_standard(path, file_list):
