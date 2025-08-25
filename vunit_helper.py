@@ -353,6 +353,7 @@ def setup_vunit(
         "show_pass": args.show_pass,
         "debug_print": args.debug_print,
         "fail_on_warning": args.fail_on_warning,
+        "simulator": args.simulator,
     }
     encoded_tb_cfg = ", ".join(["%s:%s" % (key, str(tb_cfg[key])) for key in tb_cfg])
 
