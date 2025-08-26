@@ -296,64 +296,70 @@ def setup_vunit(
                 allow_empty=True,
             )
 
-    vu.set_sim_option(
-        "modelsim.vsim_flags", ["-error", "3473"], overwrite=False, allow_empty=True
-    )
-    vu.set_sim_option(
-        "rivierapro.vsim_flags", ["-unbounderror"], overwrite=False, allow_empty=True
-    )
-    vu.set_sim_option(
-        "ghdl.sim_flags", ["--max-stack-alloc=0"], overwrite=False, allow_empty=True
-    )
-    vu.set_sim_option(
-        "ghdl.elab_flags",
-        ["-frelaxed", "--ieee=synopsys"],
-        overwrite=False,
-        allow_empty=True,
-    )
-    # print(vu._project.get_source_files_in_order())
-    # print(vu._test_bench_list.get_test_benches())
-    vu.set_sim_option(
-        "rivierapro.init_file.gui",
-        str(Path(__file__).parent / "tcl" / "riviera_gui.tcl"),
-        allow_empty=True,
-    )
-    vu.set_sim_option(
-        "modelsim.init_file.gui",
-        str(Path(__file__).parent / "tcl" / "modelsim_gui.tcl"),
-        allow_empty=True,
-    )
-    vu.set_sim_option(
-        "xsim.init_file.gui",
-        str(Path(__file__).parent / "tcl" / "xsim_gui.tcl"),
-        allow_empty=True,
-    )
-    vu.set_sim_option("nvc.heap_size", "4096M", allow_empty=True)
-
     if coverage_enabled:
-        if coverage_enabled:
-            vu.set_sim_option("enable_coverage", True)
+        vu.set_sim_option("enable_coverage", True)
+    if vu.get_simulator_name() == "modelsim":
         vu.set_sim_option(
-            "rivierapro.vsim_flags",
-            ["-cc_hierarchy", "-cc_all"],
-            overwrite=False,
+            "modelsim.vsim_flags", ["-error", "3473"], overwrite=False, allow_empty=True
+        )
+        vu.set_sim_option(
+            "modelsim.init_file.gui",
+            str(Path(__file__).parent / "tcl" / "modelsim_gui.tcl"),
             allow_empty=True,
         )
         vu.set_sim_option(
             "modelsim.vsim_flags", ["-coverage"], overwrite=False, allow_empty=True
         )
-
-    vu.set_sim_option("xsim.enable_glbl", True)
+    if vu.get_simulator_name() == "rivierapro":
+        vu.set_sim_option(
+            "rivierapro.vsim_flags",
+            ["-unbounderror"],
+            overwrite=False,
+            allow_empty=True,
+        )
+        vu.set_sim_option(
+            "rivierapro.init_file.gui",
+            str(Path(__file__).parent / "tcl" / "riviera_gui.tcl"),
+            allow_empty=True,
+        )
+        if coverage_enabled:
+            vu.set_sim_option(
+                "rivierapro.vsim_flags",
+                ["-cc_hierarchy", "-cc_all"],
+                overwrite=False,
+                allow_empty=True,
+            )
+    if vu.get_simulator_name() == "ghdl":
+        vu.set_sim_option(
+            "ghdl.sim_flags", ["--max-stack-alloc=0"], overwrite=False, allow_empty=True
+        )
+        vu.set_sim_option(
+            "ghdl.elab_flags",
+            ["-frelaxed", "--ieee=synopsys"],
+            overwrite=False,
+            allow_empty=True,
+        )
+    if vu.get_simulator_name() == "nvc":
+        vu.set_sim_option("nvc.heap_size", "4096M", allow_empty=True)
+    if vu.get_simulator_name() == "xsim":
+        vu.set_sim_option(
+            "xsim.init_file.gui",
+            str(Path(__file__).parent / "tcl" / "xsim_gui.tcl"),
+            allow_empty=True,
+        )
+        vu.set_sim_option("xsim.enable_glbl", True)
 
     vu.add_osvvm()
     vu.add_verification_components()
 
-    # -frelaxed is needed for Xsim + OSVVM
-    # For now to work around shared variable illegal usage
-    vu.add_compile_option("ghdl.a_flags", ["-frelaxed"], allow_empty=True)
-    # --relaxed is needed for Xsim + OSVVM
-    # For now to work around shared variable illegal usage
-    vu.add_compile_option("nvc.a_flags", ["--relaxed"], allow_empty=True)
+    if vu.get_simulator_name() == "ghdl":
+        # -frelaxed is needed for Xsim + OSVVM
+        # For now to work around shared variable illegal usage
+        vu.add_compile_option("ghdl.a_flags", ["-frelaxed"], allow_empty=True)
+    if vu.get_simulator_name() == "nvc":
+        # --relaxed is needed for Xsim + OSVVM
+        # For now to work around shared variable illegal usage
+        vu.add_compile_option("nvc.a_flags", ["--relaxed"], allow_empty=True)
 
     tb_cfg = {
         "stop_on_bad_check": args.stop_on_bad_check,
@@ -368,6 +374,7 @@ def setup_vunit(
 
     vu.set_generic("tb_cfg", encoded_tb_cfg, allow_empty=True)
 
+    exit(0)
     override_compile(vu, args.simulator)
 
     return vu
@@ -1053,13 +1060,6 @@ def add_files_from(blk_dir, vu, args, root_dir, glbl):
     """
     if args.verbose:
         print(f"Loading files from {blk_dir}")
-    try:
-        # If there exists a relative path from here to root dir then it must be local
-        rel_path = Path(blk_dir).resolve().relative_to(root_dir)
-        as_ref = False
-    except:
-        # Otherwise it's external, tell read_manifest it's only a reference and we don't want its testbenches
-        as_ref = True
 
     manifest = manifest_reader.read_manifest(blk_dir)
     if (
@@ -1070,48 +1070,60 @@ def add_files_from(blk_dir, vu, args, root_dir, glbl):
         print(f"WARNING: simulator {args.simulator} not supported for {blk_dir}")
         return vu
 
+    # If there exists a relative path from here to root dir then it must be local
+    # Otherwise it's external, tell read_manifest it's only a reference and we don't want its testbenches
+    as_ref = not Path(blk_dir).resolve().is_relative_to(root_dir)
+
     for file_list in manifest.file_lists:
         lib = vu.add_library(file_list.get_lib_name(manifest.name))
-        lib = add_files_to_lib(lib, file_list, manifest, as_ref, vu, glbl)
+        lib = add_files_to_lib(lib, file_list, manifest, as_ref, vu, glbl, args.verbose)
 
         if file_list.kind == "dsn":
-            lib.add_compile_option(
-                "modelsim.vcom_flags",
-                ["-error", "1400,1401"],
-                allow_empty=True,
-            )
+            if vu.get_simulator_name() == "modelsim":
+                lib.add_compile_option(
+                    "modelsim.vcom_flags",
+                    ["-error", "1400,1401"],
+                    allow_empty=True,
+                )
         elif file_list.kind == "tb":
+            if vu.get_simulator_name() == "ghdl":
+                lib.add_compile_option(
+                    # For now to work around shared variable illegal usage
+                    "ghdl.a_flags",
+                    ["-frelaxed"],
+                    allow_empty=True,
+                )
+        if vu.get_simulator_name() == "rivierapro":
             lib.add_compile_option(
-                # For now to work around shared variable illegal usage
+                "rivierapro.vcom_flags", ["-coverage", "sbe", "-incr"], allow_empty=True
+            )
+            if not args.no_optimization:
+                # I want to only turn this on for batch runs but it will require vunit changes
+                # Need to cache all compile results and be able to hotswap them as necessary
+                # For now just provide an option
+                lib.add_compile_option(
+                    "rivierapro.vcom_flags", ["-O3"], allow_empty=True
+                )
+        if vu.get_simulator_name() == "modelsim":
+            lib.add_compile_option(
+                "modelsim.vcom_flags", ["+cover=sbcexf"], allow_empty=True
+            )
+        if vu.get_simulator_name() == "nvc":
+            lib.add_compile_option("nvc.flags", ["-M32M"], allow_empty=True)
+            lib.add_compile_option("nvc.a_flags", ["--relaxed"], allow_empty=True)
+        if vu.get_simulator_name() == "ghdl":
+            lib.add_compile_option(
                 "ghdl.a_flags",
-                ["-frelaxed"],
+                ["-frelaxed", "-fsynopsys"],
                 allow_empty=True,
             )
-        lib.add_compile_option(
-            "rivierapro.vcom_flags", ["-coverage", "sbe", "-incr"], allow_empty=True
-        )
-        lib.add_compile_option(
-            "modelsim.vcom_flags", ["+cover=sbcexf"], allow_empty=True
-        )
-        lib.add_compile_option("nvc.flags", ["-M32M"], allow_empty=True)
-        lib.add_compile_option("nvc.a_flags", ["--relaxed"], allow_empty=True)
-        lib.add_compile_option(
-            "ghdl.a_flags",
-            ["-frelaxed", "-fsynopsys"],
-            allow_empty=True,
-        )
-        if not args.no_optimization:
-            # I want to only turn this on for batch runs but it will require vunit changes
-            # Need to cache all compile results and be able to hotswap them as necessary
-            # For now just provide an option
-            lib.add_compile_option("rivierapro.vcom_flags", ["-O3"], allow_empty=True)
 
     # print(vu._test_bench_list.get_test_benches())
     # print(vu._project.get_source_files_in_order())
     return vu
 
 
-def add_files_to_lib(lib, file_list, manifest, as_ref, vu, glbl):
+def add_files_to_lib(lib, file_list, manifest, as_ref, vu, glbl, verbose=False):
     """
     Adds the files in the file list to the library with the given standard
 
@@ -1127,16 +1139,18 @@ def add_files_to_lib(lib, file_list, manifest, as_ref, vu, glbl):
         The modified Library
 
     """
+    # Allow empty entries, just skip
+    if file_list.files is None:
+        return lib
     if vu.get_simulator_name() == "ghdl" or vu.get_simulator_name() == "nvc":
         vhdl_standard = "2008"
     else:
         vhdl_standard = to_vunit_vhdl_standard(file_list.standard)
-    # Allow empty entries, just skip
-    if file_list.files is None:
-        return lib
+
+    source_dir = manifest.get_source_dir(file_list.kind)
     for file in file_list.files:
         file = Path(file)
-        full_file_path = manifest.get_source_dir(file_list.kind) / file
+        full_file_path = source_dir / file
         if file.suffix in (".svh", ".vh"):
             # Bleh.  Headers need to be copied for macros to work but shouldn't be compiled
             # Just copy them manually to the preprocessed folder where it should be
@@ -1168,6 +1182,8 @@ def add_files_to_lib(lib, file_list, manifest, as_ref, vu, glbl):
             if is_tb:
                 continue
 
+        if verbose:
+            print(f"Adding file {lib.name}, {file.name}, {vhdl_standard}")
         source_file = lib.add_source_file(full_file_path, vhdl_standard=vhdl_standard)
         if glbl and file_list.kind == "tb":
             vu._project.add_manual_dependency(
