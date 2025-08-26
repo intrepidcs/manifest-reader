@@ -374,7 +374,6 @@ def setup_vunit(
 
     vu.set_generic("tb_cfg", encoded_tb_cfg, allow_empty=True)
 
-    exit(0)
     override_compile(vu, args.simulator)
 
     return vu
