@@ -348,6 +348,13 @@ def setup_vunit(
     vu.add_osvvm()
     vu.add_verification_components()
 
+    # -frelaxed is needed for Xsim + OSVVM
+    # For now to work around shared variable illegal usage
+    vu.add_compile_option("ghdl.a_flags", ["-frelaxed"], allow_empty=True)
+    # --relaxed is needed for Xsim + OSVVM
+    # For now to work around shared variable illegal usage
+    vu.add_compile_option("nvc.a_flags", ["--relaxed"], allow_empty=True)
+
     tb_cfg = {
         "stop_on_bad_check": args.stop_on_bad_check,
         "show_pass": args.show_pass,
