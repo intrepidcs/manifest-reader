@@ -319,21 +319,23 @@ rule:
     comment_line_ends_group: false
   procedure_401:
     blank_line_ends_group : true
-    comment_line_ends_group: true
+    comment_line_ends_group: false
     compact_alignment: false
   procedure_411:
-    comment_line_ends_group: true
+    comment_line_ends_group: false
     compact_alignment: false
   when_001:
     disable: true
   concurrent_009:
     disable: true
   function_012:
-    comment_line_ends_group : true
+    comment_line_ends_group : false
   case_200:
     disable: true
   process_400:
-    comment_line_ends_group: true
+    comment_line_ends_group: false
     blank_line_ends_group: true
   procedure_412:
     compact_alignment : false
+  process_033:
+    comment_line_ends_group: false
