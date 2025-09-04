@@ -552,7 +552,7 @@ def gen_configs(test_cfg_options):
     return configs
 
 
-def add_config(config, item):
+def add_config(config, item, pre_config=None, post_check=None):
     """
     Utils function to add the provided configuration to the provided item (can mostly be any Vunit-like object)
 
@@ -570,7 +570,12 @@ def add_config(config, item):
     encoded_test_cfg["test_cfg"] = ", ".join(
         ["%s:%s" % (key, str(config[key])) for key in config]
     )
-    item.add_config(name=config_name, generics=encoded_test_cfg)
+    item.add_config(
+        name=config_name,
+        generics=encoded_test_cfg,
+        pre_config=pre_config,
+        post_check=post_check,
+    )
 
 
 def add_all_configs(test_cfg_options, item):
