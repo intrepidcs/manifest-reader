@@ -35,6 +35,7 @@ Author: Nathan Francque
 Utility for interacting with VHDL LS using our manifest files
 
 """
+
 from pathlib import Path
 import sys
 from os import environ
